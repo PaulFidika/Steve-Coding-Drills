@@ -1,9 +1,19 @@
-export {};
+import someFunction from './second';
 
-console.log('hello there everyone');
+/// <reference path = "ambient.d.ts" />
 
-function thing() {
-  const abc: TestType = { a: 5, b: 19 };
+someFunction();
+
+let baboon: Monkey = { name: 'Harambe' };
+
+declare global {
+  type SampleType = {
+    a: String;
+  };
+
+  type Item = {
+    a: number;
+    b: number;
+    c: number;
+  };
 }
-
-thing();
