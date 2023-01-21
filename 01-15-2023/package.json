@@ -1,0 +1,21 @@
+{
+  "name": "01-15-2023",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Paul Fidika <paul@fidika.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "ts-node ./src/index.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^18.7.14",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.2"
+  },
+  "dependencies": {
+    "@mysten/bcs": "^0.5.0",
+    "@mysten/sui.js": "^0.22.0",
+    "@protobufjs/utf8": "^1.1.0",
+    "encode-utf8": "^2.0.0"
+  }
+}
