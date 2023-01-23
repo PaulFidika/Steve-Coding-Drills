@@ -1,48 +1,32 @@
-import { Ed25519Keypair, JsonRpcProvider, RawSigner } from '@mysten/sui.js';
+import {
+  Ed25519Keypair,
+  JsonRpcProvider,
+  RawSigner,
+  GetObjectDataResponse,
+  RawMoveCall,
+  SuiJsonValue,
+  MoveCallTransaction,
+  SignableTransaction,
+  UnserializedSignableTransaction
+} from '@mysten/sui.js';
 import { BCS, BcsConfig } from '@mysten/bcs';
 
-// let monkey2 = Buffer.from('àϰ😂😂', 'utf8');
-// console.log(monkey2.toJSON().data);
-
-// let whatever = JSON.parse(monkey2.toJSON().data);
-// console.log(whatever);
-
-// let encoder = new TextEncoder();
-// let bytes2 = encoder.encode('àϰ😂😂');
-// console.log(bytes2);
-
-// let decoder = new TextDecoder();
-// console.log(decoder.decode(bytes2.buffer));
-
-// private key: hDZ6+qWBigkbi40a+4Rpxd4NY9Y6+ZEiv0XO6OjQfzy9iW+TkgOZx2RKQIORP4bbY1XrG8Egc+Yo2Q74TNRYUw==
-// public key: 0xed2c39b73e055240323cf806a7d8fe46ced1cabb
+// public key (hex): 0xed2c39b73e055240323cf806a7d8fe46ced1cabb
+// private key (base64): hDZ6+qWBigkbi40a+4Rpxd4NY9Y6+ZEiv0XO6OjQfzy9iW+TkgOZx2RKQIORP4bbY1XrG8Egc+Yo2Q74TNRYUw==
 const privateKeyBytes = new Uint8Array([
   132, 54, 122, 250, 165, 129, 138, 9, 27, 139, 141, 26, 251, 132, 105, 197, 222, 13, 99, 214, 58,
   249, 145, 34, 191, 69, 206, 232, 232, 208, 127, 60, 189, 137, 111, 147, 146, 3, 153, 199, 100, 74,
   64, 131, 145, 63, 134, 219, 99, 85, 235, 27, 193, 32, 115, 230, 40, 217, 14, 248, 76, 212, 88, 83
 ]);
 
-// The following primitive types are available in BCS by default:
-// address, vector<T>, u8, u16, u32, u64, u128, u256, bool, string
-//
-// In this library 'string' means extended-ascii [0, 255], NOT ascii [0, 127] or UTF8, which are the
-// types used within Move. Special characters outside of the extended-ascii set get smooshed to
-// somewhere within the ascii range randomly
-//
-// vector works as expected, like vector<string> or vector<u64>
-// Options have to be registered manually as enums
+// Build a class to connect to Sui RPC servers
+const provider = new JsonRpcProvider();
 
-// Caveats:
-// -
+// Import the above keypair
+let keypair = Ed25519Keypair.fromSecretKey(privateKeyBytes);
+const signer = new RawSigner(keypair, provider);
 
-// For BCS, if you have an array of strings or an array of arrays, you'll get something like:
-// [length of array] [length of first array / string] [...bytes of first array] ...
-//
-// If you are serializing a struct alone however, the items will be listed in logical order, like
-// [length of first field (if it's not a fixed length, like u8 or address)] [...bytes of first field]
-//
-// If you are serializing an array of structs, then again the overall array-length (nubmer of items)
-// will be serialized at first (prepended)
+// ===== First we instantiate bcs, and define Option<u64> =====
 
 let bcsConfig: BcsConfig = {
   vectorType: 'vector',
@@ -60,6 +44,8 @@ let bcsConfig: BcsConfig = {
 };
 
 let bcs = new BCS(bcsConfig);
+
+// ===== Next we register ut8f and ascii as custom primitive types =====
 
 bcs.registerType(
   'utf8',
@@ -99,170 +85,137 @@ bcs.registerType(
   value => typeof value == 'string'
 );
 
-let bytes3 = bcs.ser('utf8', 'àϰ😂😂').toBytes();
-console.log(bytes3);
-console.log(bcs.de('utf8', bytes3));
+// ===== We Fetch A Schema =====
 
-let stupid = bcs.ser('vector<utf8>', ['abc', '123', 'àϰ😂😂']).toBytes();
-console.log(stupid);
-console.log(bcs.de('vector<utf8>', stupid));
+createOutlaw();
 
-let bytes4 = bcs.ser('ascii', '1234 hello world!').toBytes();
-console.log(bytes4);
-console.log(bcs.de('ascii', bytes4));
+async function createOutlaw() {
+  const objectQuery = await provider.getObject('0xd4f5b8cd2fc7cead99e70cbd9d0667ee94c862c8');
 
-// let bytes3 = bcs.ser('utf8', 'àϰ😂😂').toBytes();
-// console.log(bytes3);
-// console.log(bcs.de('utf8', bytes3));
+  let schema = parseSchema(objectQuery);
 
-let serialized = bcs.ser('u32', 55555).toBytes();
-let deserialized = bcs.de('u32', serialized);
+  if (!schema) return; // We got a bad response, nothing more we can do for now
+  bcs.registerStructType('Outlaw', schema);
 
-console.log(deserialized);
-console.log(typeof deserialized);
+  // TO DO: it would be really cool if we could instantiate the schema as a Javascript type, class
+  // or object here. Like just be able to define a Typescript Type and then instantiate it easily
+  // Instead we do it manually for now.
+  // Superstruct library might be able to help? https://www.npmjs.com/package/superstruct
 
-bcs.registerStructType('Coin', { value: 'u64' });
-bcs.registerEnumType('MyEnum', {
-  single: 'Coin',
-  multi: 'vector<Coin>',
-  empty: null
-});
+  // ===== We Define A Corresponding Schema Type, and Instantiate 2 Objects =====
 
-console.log(
-  bcs.de('MyEnum', 'AICWmAAAAAAA', 'base64'), // { single: { value: 10000000 } }
-  bcs.de('MyEnum', 'AQIBAAAAAAAAAAIAAAAAAAAA', 'base64') // { multi: [ { value: 1 }, { value: 2 } ] }
-);
+  type Outlaw = {
+    name: string;
+    image: string;
+    power_level: number;
+  };
 
-// and serialization
-bcs.ser('MyEnum', { single: { value: 10000000 } }).toBytes();
-bcs.ser('MyEnum', { multi: [{ value: 1 }, { value: 2 }] });
-
-bcs.registerStructType('Coin', {
-  value: 'u64',
-  owner: 'd',
-  is_locked: 'd'
-});
-
-bcs.registerType(
-  'number_string',
-  (writer, data) => writer.writeVec(data, (w, el) => w.write8(el)),
-  reader => reader.readVec(r => r.read8()).join(''), // read each value as u8
-  value => /[0-9]+/.test(value) // test that it has at least one digit
-);
-
-// console.log(Array.from(bcs.ser('number_string', '12345').toBytes()) == [5, 1, 2, 3, 4, 5]);
-
-// * bcs.registerVectorType('vector<u8>', 'u8');
-//    *
-//    * let serialized = BCS
-//    *   .set('vector<u8>', [1,2,3,4,5,6])
-//    *   .toBytes();
-
-// bcs.registerEnumType('Option<u64>', {
-//   none: null,
-//   some: 'u64'
-// });
-
-type Outlaw = {
-  name: string;
-  image: string;
-  power_level: string[];
-  monkey: { none: null } | { some: number };
-};
-
-bcs.registerStructType('Outlaw', {
-  name: 'utf8',
-  image: 'utf8',
-  power_level: 'vector<utf8>',
-  monkey: 'Option<u64>'
-});
-
-let t_interface = bcs.getTypeInterface('Outlaw');
-
-let metadataObject: Outlaw = {
-  name: 'Kyrie😂',
-  image: 'https://wikipedia.org/',
-  power_level: ['hey', 'how', 'are you?'],
-  monkey: { some: 19 }
-};
-
-let typeInterfaces = bcs.getTypeInterface('Outlaw');
-
-console.log(metadataObject);
-
-let bytes = bcs.ser('Outlaw', metadataObject).toBytes();
-console.log(bytes);
-let reserialized = bcs.de('Outlaw', bytes);
-console.log(reserialized);
-
-async function getObject() {
-  let keypair = Ed25519Keypair.fromSecretKey(privateKeyBytes);
-  const provider = new JsonRpcProvider();
-  // const signer = new RawSigner(keypair, provider);
-
-  let result = await provider.getTotalTransactionNumber();
-  console.log(result);
-
-  const object = await provider.getObject('0xbf4a8f90818aad78cc5a10bc1f4f6d0067e2cca7');
-
-  console.log(object);
-
-  // @ts-ignore
-  console.log(object.details.data.fields);
-  // @ts-ignore
-  console.log(object.details.data.fields.schema[2].fields);
-
-  type Schema = { [key: string]: string };
-  let object2: Schema = {};
-
-  // @ts-ignore
-  // TO DO: handle cases where details.data does not exist, or this fails
-  object.details.data.fields.schema.forEach(item => {
-    object2[item.fields.key] = item.fields.type;
-  });
-
-  console.log(object2);
-
-  bcs.registerStructType('Outlaw2', object2);
-
-  let metadataObject2 = {
+  let kyrie: Outlaw = {
     name: 'Kyrie',
     image: 'https://wikipedia.org/',
     power_level: 199990
   };
 
-  let metadataObject3 = {
+  let jin: Outlaw = {
     name: 'Jin',
     image: 'https://google.com/something/',
     power_level: 100000000
   };
 
-  let bytes = bcs.ser('Outlaw2', metadataObject2).toBytes();
-  console.log(bytes);
-  let reserial = bcs.de('Outlaw2', bytes);
-  console.log(reserial);
+  // ===== Read metatada from objects on-chain =====
 
-  let bytes5 = bcs.ser('vector<Outlaw2>', [metadataObject2, metadataObject3]).toBytes();
-  console.log(bytes5);
-  console.log(bcs.de('vector<Outlaw2>', bytes5));
+  // let moveCall: RawMoveCall = {
+  //   packageObjectId: '0x2f1c9c3610d58f793e936821b797b9b63d9e602a',
+  //   module: 'outlaw_sky',
+  //   function: 'view',
+  //   typeArguments: [],
+  //   arguments: ['outlaw id', 'schema id']
+  // };
+
+  // let viewQuery = await provider.devInspectMoveCall('@0x99', moveCall);
+
+  // ===== Write metadata to objects on-chain =====
+
+  let kyrieBytes = Array.from(bcs.ser('Outlaw', kyrie).toBytes());
+  let jinBytes = bcs.ser('Outlaw', jin);
+
+  // signer.signAndExecuteTransaction('', 'WaitForEffectsCert');
+  // signer.executeMoveCall('', 'WaitForEffectsCert');
+
+  const moveCallTxn = await signer.executeMoveCall({
+    packageObjectId: '0x6d4d5cd3a4ab962539513d011c03c8a10b5a31f6',
+    module: 'outlaw_sky',
+    function: 'create',
+    typeArguments: [],
+    arguments: ['0x5169e6aa4136ce330960559ec8416f32b2d01645', kyrieBytes],
+    gasBudget: 15000
+  });
+
+  console.log(kyrieBytes);
+
+  let utf8Bytes_ser = bcs.ser('vector<utf8>', [
+    'empty',
+    'zero word',
+    'first word',
+    'hope this works',
+    'large character set',
+    'another one',
+    'more more'
+  ]);
+  let utf8Bytes = Array.from(utf8Bytes_ser.toBytes());
+  console.log(utf8Bytes);
+
+  // let dataBuffer = await signer.serializer.serializeToBytes('', '', 'Commit');
+
+  // let something2 = await signer.signAndExecuteTransaction(dataBuffer, 'WaitForEffectsCert');
+
+  // let txnResults = await provider.executeTransaction(
+  //   '',
+  //   'ED25519',
+  //   '',
+  //   'pubkey',
+  //   'WaitForEffectsCert'
+  // );
+
+  // const moveCallTxn = await signer.executeMoveCall({
+  //   packageObjectId: '0xfe593d3458c272f73e2595ee7f6cfb00b9597315',
+  //   module: 'bcs_maybe',
+  //   function: 'give_bcs',
+  //   typeArguments: [],
+  //   arguments: [utf8Bytes2],
+  //   gasBudget: 200000
+  // });
+
+  // RPC Error: Could not serialize argument of type Vector(U8) at 0 into vector<u8>
+
+  console.log(moveCallTxn);
 }
 
-getObject();
+// TO DO: there is probably a better way to do this, without the ts-ignore and the null response
+function parseSchema(objectQuery: GetObjectDataResponse): { [key: string]: string } | null {
+  try {
+    let response: { [key: string]: string } = {};
 
-async function mintNFT() {
-  // Import an existing keyapri
-  let keypair = Ed25519Keypair.fromSecretKey(privateKeyBytes);
-  const provider = new JsonRpcProvider();
-  const signer = new RawSigner(keypair, provider);
+    // @ts-ignore
+    objectQuery.details.data.fields.schema.forEach(item => {
+      if (item.fields.optional) response[item.fields.key] = `Option<${item.fields.type}>`;
+      else response[item.fields.key] = item.fields.type;
+    });
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
 
-  //   console.log(keypair.getPublicKey().toSuiAddress());
-
+async function defineSchema() {
   // const moveCallTxn = await signer.signAndExecuteTransaction(txBytes, 'WaitForEffectsCert');
+
+  // ===== Create a Schema Manually =====
 
   const moveCallTxn = await signer.executeMoveCall({
     packageObjectId: '0x4f2801f232f4cd689e7d1791b74e7fad1dfa068c',
     module: 'schema',
-    function: 'create',
+    function: 'define',
     typeArguments: [],
     arguments: [
       ['name', 'image', 'power level'],
@@ -275,4 +228,9 @@ async function mintNFT() {
   console.log('moveCallTxn', moveCallTxn);
 }
 
-// mintNFT();
+// defineSchema();
+
+async function readOutlaw() {
+  // TO DO
+  // Do a read and modify cycle; just keep going back and forth
+}
