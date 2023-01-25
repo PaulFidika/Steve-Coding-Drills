@@ -5,7 +5,8 @@
   "author": "Paul Fidika <paul@fidika.com>",
   "license": "MIT",
   "scripts": {
-    "start": "ts-node ./src/index.ts"
+    "start": "ts-node ./src/index.ts",
+    "attempt3": "ts-node ./src/attempt3.ts"
   },
   "devDependencies": {
     "@types/node": "^18.7.14",

@@ -7,9 +7,11 @@ import {
   SuiJsonValue,
   MoveCallTransaction,
   SignableTransaction,
-  UnserializedSignableTransaction
+  UnserializedSignableTransaction,
+  DevInspectResults
 } from '@mysten/sui.js';
 import { BCS, BcsConfig } from '@mysten/bcs';
+import { string } from 'superstruct';
 
 // public key (hex): 0xed2c39b73e055240323cf806a7d8fe46ced1cabb
 // private key (base64): hDZ6+qWBigkbi40a+4Rpxd4NY9Y6+ZEiv0XO6OjQfzy9iW+TkgOZx2RKQIORP4bbY1XrG8Egc+Yo2Q74TNRYUw==
@@ -87,15 +89,28 @@ bcs.registerType(
 
 // ===== We Fetch A Schema =====
 
-createOutlaw();
+// createOutlaw();
 
 async function createOutlaw() {
-  const objectQuery = await provider.getObject('0xd4f5b8cd2fc7cead99e70cbd9d0667ee94c862c8');
+  const objectQuery = await provider.getObject('0xa37996c78eed10373b5f71cf6b5cd2b623494ba5');
 
   let schema = parseSchema(objectQuery);
 
   if (!schema) return; // We got a bad response, nothing more we can do for now
   bcs.registerStructType('Outlaw', schema);
+
+  // Instantiate JS object from schema
+  // let outlaw = instantiateSchema(schema, ['My Name', 'https:///somwhere', 65]);
+  // let outlaw = {
+  //   name: string,
+  //   image: string,
+  //   power_level: bigint
+  // }
+
+  // outlaw.power_level += 3;
+
+  // console.log('-------------------');
+  // console.log(schema);
 
   // TO DO: it would be really cool if we could instantiate the schema as a Javascript type, class
   // or object here. Like just be able to define a Typescript Type and then instantiate it easily
@@ -136,6 +151,10 @@ async function createOutlaw() {
 
   // ===== Write metadata to objects on-chain =====
 
+  let something = Array.from(bcs.ser('Outlaw', kyrie).toBytes());
+
+  // Serializer that does vector<vector<u8>>
+
   let kyrieBytes = Array.from(bcs.ser('Outlaw', kyrie).toBytes());
   let jinBytes = bcs.ser('Outlaw', jin);
 
@@ -143,15 +162,17 @@ async function createOutlaw() {
   // signer.executeMoveCall('', 'WaitForEffectsCert');
 
   const moveCallTxn = await signer.executeMoveCall({
-    packageObjectId: '0x6d4d5cd3a4ab962539513d011c03c8a10b5a31f6',
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
     module: 'outlaw_sky',
     function: 'create',
     typeArguments: [],
-    arguments: ['0x5169e6aa4136ce330960559ec8416f32b2d01645', kyrieBytes],
+    arguments: ['0xa37996c78eed10373b5f71cf6b5cd2b623494ba5', kyrieBytes],
     gasBudget: 15000
   });
 
   console.log(kyrieBytes);
+
+  let monkey = [3, 19, false, 'something'];
 
   let utf8Bytes_ser = bcs.ser('vector<utf8>', [
     'empty',
@@ -191,22 +212,6 @@ async function createOutlaw() {
   console.log(moveCallTxn);
 }
 
-// TO DO: there is probably a better way to do this, without the ts-ignore and the null response
-function parseSchema(objectQuery: GetObjectDataResponse): { [key: string]: string } | null {
-  try {
-    let response: { [key: string]: string } = {};
-
-    // @ts-ignore
-    objectQuery.details.data.fields.schema.forEach(item => {
-      if (item.fields.optional) response[item.fields.key] = `Option<${item.fields.type}>`;
-      else response[item.fields.key] = item.fields.type;
-    });
-    return response;
-  } catch (err) {
-    return null;
-  }
-}
-
 async function defineSchema() {
   // const moveCallTxn = await signer.signAndExecuteTransaction(txBytes, 'WaitForEffectsCert');
 
@@ -230,7 +235,123 @@ async function defineSchema() {
 
 // defineSchema();
 
-async function readOutlaw() {
-  // TO DO
+readAndWriteOutlaw();
+
+async function readAndWriteOutlaw() {
   // Do a read and modify cycle; just keep going back and forth
+
+  let result = await provider.devInspectMoveCall('0xed2c39b73e055240323cf806a7d8fe46ced1cabb', {
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
+    module: 'outlaw_sky',
+    function: 'view',
+    typeArguments: [],
+    arguments: [
+      '0x655b7e5c9a0011c67aebcffe05f4a07f99d7785d',
+      '0xa37996c78eed10373b5f71cf6b5cd2b623494ba5'
+    ]
+  });
+
+  console.log(result.results);
+  // view returns:
+  //    38,   3,   5,  75, 121, 114, 105, 101,  22,
+  // 104, 116, 116, 112, 115,  58,  47,  47, 119,
+  // 105, 107, 105, 112, 101, 100, 105,  97,  46,
+  // 111, 114, 103,  47,  54,  13,   3,   0,   0,
+  //   0,   0,   0
+  // Total number of bytes: 38
+  // Total number of items: 3
+  // Length of first item: 5
+  // Bytes for first item: 75, 121, 114, 105, 101
+  // ..
+
+  // view_alternate vector<vector<u8>> returns:
+  // [ 3, 6, 5,  75, 121, 114, 105, 101, 23,  22, 104,
+  //116, 116, 112, 115,  58,  47, 47, 119, 105,
+  // 107, 105, 112, 101, 100, 105, 97,  46, 111,
+  // 114, 103,  47,   8,  54,  13,  3,   0,   0,
+  // 0,   0,   0 ]
+  // total number of items: 3 (vectors)
+  // total length of of vector: 6
+  // total length of bytes for first item: 5
+  // bytes for first item: 75, 121, 114, 105, 101
+  // total length of vector: 23
+  // total length of bytes for vector: 22
+  // bytes for second item: 104, 116...
+  // total length of vector: 8
+  // bytes for u64: 54, 13, ...
+  //
+  // In other words, returning vector<vector<u8>> is stupid because it gets REALLY garbled
+  // it simply takes the vectors, prepends each of them with their length, smooshes them together,
+  // then adds ANOTHER byte that specifies length (total number of vectors)
+
+  let data = parseViewResults(result);
+  console.log(data);
+
+  const objectQuery = await provider.getObject('0xd4f5b8cd2fc7cead99e70cbd9d0667ee94c862c8');
+  let schema = parseSchema(objectQuery);
+
+  if (!schema) return; // We got a bad response, nothing more we can do for now
+  bcs.registerStructType('Outlaw', schema);
+
+  // We have to manually define the TS type for now
+  type Outlaw = {
+    name: string;
+    image: string;
+    power_level: number;
+  };
+
+  let outlaw = bcs.de('Outlaw', new Uint8Array(data)) as Outlaw;
+  console.log(outlaw);
+
+  // Modify the metadata
+  outlaw.name = 'Kizande';
+  outlaw.power_level = 917;
+
+  let kyrieBytes = Array.from(bcs.ser('Outlaw', outlaw).toBytes());
+
+  const moveCallTxn = await signer.executeMoveCall({
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
+    module: 'outlaw_sky',
+    function: 'overwrite',
+    typeArguments: [],
+    // outlaw id, keys, data bytes, schema
+    arguments: [
+      '0x655b7e5c9a0011c67aebcffe05f4a07f99d7785d',
+      ['name', 'image', 'power_level'],
+      kyrieBytes,
+      '0xa37996c78eed10373b5f71cf6b5cd2b623494ba5'
+    ],
+    gasBudget: 15000
+  });
+}
+
+// ====== Helper Parse Functions ======
+
+// TO DO: there is probably a better way to do this, without the ts-ignore and the null response
+function parseSchema(objectQuery: GetObjectDataResponse): { [key: string]: string } | null {
+  try {
+    let response: { [key: string]: string } = {};
+
+    // @ts-ignore
+    objectQuery.details.data.fields.schema.forEach(item => {
+      if (item.fields.optional) response[item.fields.key] = `Option<${item.fields.type}>`;
+      else response[item.fields.key] = item.fields.type;
+    });
+    return response;
+  } catch (err) {
+    return null;
+  }
+}
+
+// TO DO: we can't just remove the 0th byte; that will fail if there are more than 128 items
+// in the response. Instead we need to parse the ULEB128 and remove that
+function parseViewResults(result: DevInspectResults): number[] {
+  // @ts-ignore
+  let data = result.results.Ok[0][1].returnValues[0][0] as number[];
+
+  // Delete the first tunnecessary ULEB128 length auto-added by the sui bcs view-function response
+  data.splice(0, 1);
+  // data.splice(0, 1);
+
+  return data;
 }
