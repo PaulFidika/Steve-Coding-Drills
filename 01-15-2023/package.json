@@ -6,7 +6,9 @@
   "license": "MIT",
   "scripts": {
     "start": "ts-node ./src/index.ts",
-    "attempt3": "ts-node ./src/attempt3.ts"
+    "attempt3": "ts-node ./src/attempt3.ts",
+    "attempt5": "ts-node ./src/attempt5.ts",
+    "attempt7": "ts-node ./src/attempt7.ts"
   },
   "devDependencies": {
     "@types/node": "^18.7.14",

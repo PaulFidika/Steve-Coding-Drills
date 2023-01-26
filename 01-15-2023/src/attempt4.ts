@@ -22,7 +22,7 @@ const privateKeyBytes = new Uint8Array([
 ]);
 
 // Build a class to connect to Sui RPC servers
-const provider = new JsonRpcProvider('https://fullnode.testnet.sui.io:443');
+const provider = new JsonRpcProvider();
 
 // Import the above keypair
 let keypair = Ed25519Keypair.fromSecretKey(privateKeyBytes);
@@ -87,17 +87,15 @@ bcs.registerType(
   value => typeof value == 'string'
 );
 
-// ===== We Fetch A Schema =====
+// ===== Do A Full CRUD (Create, Update, Read, Delete) Loop =====
 
-// createOutlaw();
+fullLoop();
 
-async function createOutlaw() {
-  const objectQuery = await provider.getObject('0x37cef7c69de4b1cea22f1ef445940432d6968ac6');
-
+async function fullLoop() {
+  const objectQuery = await provider.getObject('0xa37996c78eed10373b5f71cf6b5cd2b623494ba5');
   let schema = parseSchema(objectQuery);
-
-  if (!schema) return; // We got a bad response, nothing more we can do for now
-  bcs.registerStructType('Outlaw', schema);
+  if (!schema) return;
+  bcs.registerStructType('Outlaw', schema); // This assumes the parsing succeeded
 
   // Instantiate JS object from schema
   // let outlaw = instantiateSchema(schema, ['My Name', 'https:///somwhere', 65]);
@@ -162,11 +160,11 @@ async function createOutlaw() {
   // signer.executeMoveCall('', 'WaitForEffectsCert');
 
   const moveCallTxn = await signer.executeMoveCall({
-    packageObjectId: '0x8af0cbf8380f7738907ef9aee9aab4e34c3d0716',
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
     module: 'outlaw_sky',
     function: 'create',
     typeArguments: [],
-    arguments: ['0x37cef7c69de4b1cea22f1ef445940432d6968ac6', kyrieBytes],
+    arguments: ['0xa37996c78eed10373b5f71cf6b5cd2b623494ba5', kyrieBytes],
     gasBudget: 15000
   });
 
@@ -241,13 +239,13 @@ async function readAndWriteOutlaw() {
   // Do a read and modify cycle; just keep going back and forth
 
   let result = await provider.devInspectMoveCall('0xed2c39b73e055240323cf806a7d8fe46ced1cabb', {
-    packageObjectId: '0x8af0cbf8380f7738907ef9aee9aab4e34c3d0716',
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
     module: 'outlaw_sky',
     function: 'view',
     typeArguments: [],
     arguments: [
-      '0xc6c3028a0df2eb49af8cf766971c9b2cf5a8d0c2',
-      '0x37cef7c69de4b1cea22f1ef445940432d6968ac6'
+      '0x655b7e5c9a0011c67aebcffe05f4a07f99d7785d',
+      '0xa37996c78eed10373b5f71cf6b5cd2b623494ba5'
     ]
   });
 
@@ -287,7 +285,7 @@ async function readAndWriteOutlaw() {
   let data = parseViewResults(result);
   console.log(data);
 
-  const objectQuery = await provider.getObject('0x37cef7c69de4b1cea22f1ef445940432d6968ac6');
+  const objectQuery = await provider.getObject('0xd4f5b8cd2fc7cead99e70cbd9d0667ee94c862c8');
   let schema = parseSchema(objectQuery);
 
   if (!schema) return; // We got a bad response, nothing more we can do for now
@@ -310,16 +308,16 @@ async function readAndWriteOutlaw() {
   let kyrieBytes = Array.from(bcs.ser('Outlaw', outlaw).toBytes());
 
   const moveCallTxn = await signer.executeMoveCall({
-    packageObjectId: '0x8af0cbf8380f7738907ef9aee9aab4e34c3d0716',
+    packageObjectId: '0x06958bb1c0368b0bc3af0c48d51bbf9b158d365a',
     module: 'outlaw_sky',
     function: 'overwrite',
     typeArguments: [],
     // outlaw id, keys, data bytes, schema
     arguments: [
-      '0xc6c3028a0df2eb49af8cf766971c9b2cf5a8d0c2',
+      '0x655b7e5c9a0011c67aebcffe05f4a07f99d7785d',
       ['name', 'image', 'power_level'],
       kyrieBytes,
-      '0x37cef7c69de4b1cea22f1ef445940432d6968ac6'
+      '0xa37996c78eed10373b5f71cf6b5cd2b623494ba5'
     ],
     gasBudget: 15000
   });

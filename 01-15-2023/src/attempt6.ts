@@ -23,6 +23,12 @@
 
 // // Create our schema in JS
 
+// const OutlawSchema = {
+//   name: 'Option<ascii>',
+//   image: 'ascii',
+//   power_level: 'u64'
+// };
+
 // type OutlawSchema = {
 //   name: 'Option<ascii>';
 //   image: 'ascii';
