@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",                        // Target modern JavaScript (ES6)
+    "module": "ES2022",                        // Use ES module syntax
+    "moduleResolution": "node",                // Use Node.js-style module resolution
+    "jsx": "react",                            // Transpile JSX to React.createElement
+    "outDir": "./dist",                        // Output directory for transpiled files
+    "rootDir": "./src",                        // Root directory of input files
+    "strict": true,                            // Enable strict type-checking options
+    "esModuleInterop": true,                   // Enable interoperability between CommonJS and ES modules
+    "skipLibCheck": true,                      // Skip type checking of declaration files
+    "forceConsistentCasingInFileNames": true,  // Ensure consistent casing in file names
+    "allowSyntheticDefaultImports": true,      // Allow default imports from modules with no default export
+    "isolatedModules": true                    // Ensure each file can be safely transpiled without relying on other imports
+  },
+  "include": ["src"]
+}
