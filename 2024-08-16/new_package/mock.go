@@ -31,11 +31,11 @@ func main() {
 		go func(id string) {
 			results <- dbCall(id)
 			// Without this lock, this block has inconsistent behavior
-			// m.Lock()
+			m.Lock()
 			var thing = myCounter
 			time.Sleep(100_000_000)
 			myCounter = thing + 1
-			// m.Unlock()
+			m.Unlock()
 			wg.Done()
 		}(id)
 	}

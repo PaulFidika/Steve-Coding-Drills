@@ -9,22 +9,50 @@ import (
 	"github.com/samber/mo"
 )
 
+// type JobRequest struct {
+// 	ModelId string
+// 	Prompt mo.Option[string] // `default:"mo.None[string]()"`
+// 	NumImages int `default:"4"`
+// 	AspectRatio string `default:"1/1"`
+// }
+
+type AspectRatioEnum string
+
+const (
+	AspectRatio1x1  AspectRatioEnum = "1/1"
+	AspectRatio16x9 AspectRatioEnum = "16/9"
+	AspectRatio9x16 AspectRatioEnum = "9/16"
+)
+
+func (a AspectRatioEnum) IsValid() bool {
+	switch a {
+	case AspectRatio1x1, AspectRatio16x9, AspectRatio9x16:
+		return true
+	}
+	return false
+}
+
+func (a AspectRatioEnum) String() string {
+	return string(a)
+}
+
+
 type JobRequest struct {
 	ModelId string
-	Prompt mo.Option[string] // `default:"mo.None[string]()"`
-	NumImages int `default:"4"`
-	AspectRatio string `default:"1/1"`
+	Prompt mo.Option[string]
+	NumImages mo.Option[int] 
+	AspectRatio mo.Option[string]
 }
 
 func (job *JobRequest) SetDefaults() {
 	// if _, exists := job.Prompt.Get(); !exists {
 	// 	job.Prompt = mo.None[string]()
 	// }
-	if job.NumImages == 0 {
-		job.NumImages = 4
+	if job.NumImages.IsAbsent() {
+		job.NumImages = mo.Some(4)
 	}
-	if job.AspectRatio == "" {
-		job.AspectRatio = "1/1"
+	if job.AspectRatio.IsAbsent() {
+		job.AspectRatio = mo.Some(AspectRatio1x1.String())
 	}
 }
 
@@ -34,7 +62,7 @@ func RunIt() {
 	job.SetDefaults()
 
 	fmt.Printf("Job details: %+v\n", job)
-	fmt.Printf("The number of images: %X\n", job.NumImages)
+	fmt.Printf("The number of images: %X\n", job.NumImages.MustGet())
 
 	option1 := mo.Some(42)
 

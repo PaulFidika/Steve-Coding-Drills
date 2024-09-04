@@ -1,0 +1,10 @@
+{
+  "name": "2024-08-27",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "dependencies": {
+    "easy": "^19.0.4",
+    "simple": "^0.2.0"
+  }
+}
