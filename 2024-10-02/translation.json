@@ -1,0 +1,104 @@
+{
+    "001.png": [
+        {
+            "container": {
+                "bounding_box": [0, 0, 100, 100],
+                "style": "speech",
+                "color": null
+            },
+            "text": {
+                "bounding_box": [0, 0, 100, 100],
+                "style": null,
+                "color": "#000000",
+                "size": 12,
+                "content": {
+                    "jp": "おはようございます。",
+                    "en": "Good morning.",
+                    "zh": "早上好。",
+                    "es": "Buenos días."
+                }
+            }
+        },
+        {
+            "text": {
+                "bounding_box": [500, 500, 100, 100],
+                "style": "sfx-angry",
+                "color": "#FF0000",
+                "size": 16,
+                "content": {
+                    "jp": "ドーン！",
+                    "en": "BOOM!",
+                    "zh": "轰！",
+                    "es": "¡BUM!"
+                }
+            }
+        },
+        {
+            "container": {
+                "bounding_box": [300, 200, 150, 120],
+                "style": "thought",
+                "color": null
+            },
+            "text": {
+                "bounding_box": [300, 200, 150, 120],
+                "style": null,
+                "color": "#0000FF",
+                "size": 10,
+                "content": {
+                    "jp": "何が起こったんだろう...",
+                    "en": "What just happened...",
+                    "zh": "刚刚发生了什么...",
+                    "es": "¿Qué acaba de pasar..."
+                }
+            }
+        },
+        {
+            "container": {
+                "bounding_box": [200, 300, 150, 80],
+                "style": "box",
+                "color": null
+            },
+            "text": {
+                "bounding_box": [200, 300, 150, 80],
+                "style": null,
+                "color": "#333333",
+                "size": 14,
+                "content": {
+                    "jp": "1000年前、世界は突如として闇に包まれた。",
+                    "en": "1,000 years ago, the world suddenly fell into darkness.",
+                    "zh": "1000年前，世界突然陷入了黑暗。",
+                    "es": "Hace 1.000 años, el mundo cayó repentinamente en la oscuridad."
+                }
+            }
+        },
+        {
+            "container": "environment",
+            "text": {
+                "bounding_box": [200, 300, 150, 80],
+                "style": "bold",
+                "color": "#FFFFFF",
+                "size": 24,
+                "content": {
+                    "jp": "星空学園",
+                    "en": "Starry Sky Academy",
+                    "zh": "星空学院",
+                    "es": "Academia Cielo Estrellado"
+                }
+            }
+        },
+        {
+            "text": {
+                "bounding_box": [200, 300, 150, 80],
+                "style": "scribble",
+                "color": "#666666",
+                "size": 8,
+                "content": {
+                    "jp": "ぶつぶつ...宿題が多すぎる...",
+                    "en": "Grumble... too much homework...",
+                    "zh": "嘟囔...作业太多了...",
+                    "es": "Refunfuñando... demasiada tarea..."
+                }
+            }
+        }
+    ]
+}
