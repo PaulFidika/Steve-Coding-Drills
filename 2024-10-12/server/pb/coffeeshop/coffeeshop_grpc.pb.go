@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	CoffeeShop_GetMenu_FullMethodName        = "/coffeeshop.CoffeeShop/GetMenu"
+	CoffeeShop_StreamOrders_FullMethodName   = "/coffeeshop.CoffeeShop/StreamOrders"
 	CoffeeShop_PlaceOrder_FullMethodName     = "/coffeeshop.CoffeeShop/PlaceOrder"
 	CoffeeShop_GetOrderStatus_FullMethodName = "/coffeeshop.CoffeeShop/GetOrderStatus"
 )
@@ -28,7 +28,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type CoffeeShopClient interface {
-	GetMenu(ctx context.Context, in *MenuRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Menu], error)
+	StreamOrders(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Order], error)
 	PlaceOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*Receipt, error)
 	GetOrderStatus(ctx context.Context, in *Receipt, opts ...grpc.CallOption) (*OrderStatus, error)
 }
@@ -41,13 +41,13 @@ func NewCoffeeShopClient(cc grpc.ClientConnInterface) CoffeeShopClient {
 	return &coffeeShopClient{cc}
 }
 
-func (c *coffeeShopClient) GetMenu(ctx context.Context, in *MenuRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Menu], error) {
+func (c *coffeeShopClient) StreamOrders(ctx context.Context, in *StreamRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Order], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &CoffeeShop_ServiceDesc.Streams[0], CoffeeShop_GetMenu_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &CoffeeShop_ServiceDesc.Streams[0], CoffeeShop_StreamOrders_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &grpc.GenericClientStream[MenuRequest, Menu]{ClientStream: stream}
+	x := &grpc.GenericClientStream[StreamRequest, Order]{ClientStream: stream}
 	if err := x.ClientStream.SendMsg(in); err != nil {
 		return nil, err
 	}
@@ -58,7 +58,7 @@ func (c *coffeeShopClient) GetMenu(ctx context.Context, in *MenuRequest, opts ..
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CoffeeShop_GetMenuClient = grpc.ServerStreamingClient[Menu]
+type CoffeeShop_StreamOrdersClient = grpc.ServerStreamingClient[Order]
 
 func (c *coffeeShopClient) PlaceOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*Receipt, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -84,7 +84,7 @@ func (c *coffeeShopClient) GetOrderStatus(ctx context.Context, in *Receipt, opts
 // All implementations must embed UnimplementedCoffeeShopServer
 // for forward compatibility.
 type CoffeeShopServer interface {
-	GetMenu(*MenuRequest, grpc.ServerStreamingServer[Menu]) error
+	StreamOrders(*StreamRequest, grpc.ServerStreamingServer[Order]) error
 	PlaceOrder(context.Context, *Order) (*Receipt, error)
 	GetOrderStatus(context.Context, *Receipt) (*OrderStatus, error)
 	mustEmbedUnimplementedCoffeeShopServer()
@@ -97,8 +97,8 @@ type CoffeeShopServer interface {
 // pointer dereference when methods are called.
 type UnimplementedCoffeeShopServer struct{}
 
-func (UnimplementedCoffeeShopServer) GetMenu(*MenuRequest, grpc.ServerStreamingServer[Menu]) error {
-	return status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
+func (UnimplementedCoffeeShopServer) StreamOrders(*StreamRequest, grpc.ServerStreamingServer[Order]) error {
+	return status.Errorf(codes.Unimplemented, "method StreamOrders not implemented")
 }
 func (UnimplementedCoffeeShopServer) PlaceOrder(context.Context, *Order) (*Receipt, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
@@ -127,16 +127,16 @@ func RegisterCoffeeShopServer(s grpc.ServiceRegistrar, srv CoffeeShopServer) {
 	s.RegisterService(&CoffeeShop_ServiceDesc, srv)
 }
 
-func _CoffeeShop_GetMenu_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(MenuRequest)
+func _CoffeeShop_StreamOrders_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(StreamRequest)
 	if err := stream.RecvMsg(m); err != nil {
 		return err
 	}
-	return srv.(CoffeeShopServer).GetMenu(m, &grpc.GenericServerStream[MenuRequest, Menu]{ServerStream: stream})
+	return srv.(CoffeeShopServer).StreamOrders(m, &grpc.GenericServerStream[StreamRequest, Order]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type CoffeeShop_GetMenuServer = grpc.ServerStreamingServer[Menu]
+type CoffeeShop_StreamOrdersServer = grpc.ServerStreamingServer[Order]
 
 func _CoffeeShop_PlaceOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Order)
@@ -192,8 +192,8 @@ var CoffeeShop_ServiceDesc = grpc.ServiceDesc{
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "GetMenu",
-			Handler:       _CoffeeShop_GetMenu_Handler,
+			StreamName:    "StreamOrders",
+			Handler:       _CoffeeShop_StreamOrders_Handler,
 			ServerStreams: true,
 		},
 	},

@@ -19,10 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ChatService_SayHello_FullMethodName       = "/chat.ChatService/SayHello"
-	ChatService_GetMenu_FullMethodName        = "/chat.ChatService/GetMenu"
-	ChatService_PlaceOrder_FullMethodName     = "/chat.ChatService/PlaceOrder"
-	ChatService_GetOrderStatus_FullMethodName = "/chat.ChatService/GetOrderStatus"
+	ChatService_SayHello_FullMethodName = "/chat.ChatService/SayHello"
 )
 
 // ChatServiceClient is the client API for ChatService service.
@@ -30,9 +27,6 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatServiceClient interface {
 	SayHello(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
-	GetMenu(ctx context.Context, in *MenuRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Menu], error)
-	PlaceOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*Receipt, error)
-	GetOrderStatus(ctx context.Context, in *Receipt, opts ...grpc.CallOption) (*OrderStatus, error)
 }
 
 type chatServiceClient struct {
@@ -53,53 +47,11 @@ func (c *chatServiceClient) SayHello(ctx context.Context, in *Message, opts ...g
 	return out, nil
 }
 
-func (c *chatServiceClient) GetMenu(ctx context.Context, in *MenuRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[Menu], error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &ChatService_ServiceDesc.Streams[0], ChatService_GetMenu_FullMethodName, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	x := &grpc.GenericClientStream[MenuRequest, Menu]{ClientStream: stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ChatService_GetMenuClient = grpc.ServerStreamingClient[Menu]
-
-func (c *chatServiceClient) PlaceOrder(ctx context.Context, in *Order, opts ...grpc.CallOption) (*Receipt, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Receipt)
-	err := c.cc.Invoke(ctx, ChatService_PlaceOrder_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *chatServiceClient) GetOrderStatus(ctx context.Context, in *Receipt, opts ...grpc.CallOption) (*OrderStatus, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(OrderStatus)
-	err := c.cc.Invoke(ctx, ChatService_GetOrderStatus_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 // ChatServiceServer is the server API for ChatService service.
 // All implementations must embed UnimplementedChatServiceServer
 // for forward compatibility.
 type ChatServiceServer interface {
 	SayHello(context.Context, *Message) (*Message, error)
-	GetMenu(*MenuRequest, grpc.ServerStreamingServer[Menu]) error
-	PlaceOrder(context.Context, *Order) (*Receipt, error)
-	GetOrderStatus(context.Context, *Receipt) (*OrderStatus, error)
 	mustEmbedUnimplementedChatServiceServer()
 }
 
@@ -112,15 +64,6 @@ type UnimplementedChatServiceServer struct{}
 
 func (UnimplementedChatServiceServer) SayHello(context.Context, *Message) (*Message, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SayHello not implemented")
-}
-func (UnimplementedChatServiceServer) GetMenu(*MenuRequest, grpc.ServerStreamingServer[Menu]) error {
-	return status.Errorf(codes.Unimplemented, "method GetMenu not implemented")
-}
-func (UnimplementedChatServiceServer) PlaceOrder(context.Context, *Order) (*Receipt, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PlaceOrder not implemented")
-}
-func (UnimplementedChatServiceServer) GetOrderStatus(context.Context, *Receipt) (*OrderStatus, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetOrderStatus not implemented")
 }
 func (UnimplementedChatServiceServer) mustEmbedUnimplementedChatServiceServer() {}
 func (UnimplementedChatServiceServer) testEmbeddedByValue()                     {}
@@ -161,53 +104,6 @@ func _ChatService_SayHello_Handler(srv interface{}, ctx context.Context, dec fun
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ChatService_GetMenu_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(MenuRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
-	}
-	return srv.(ChatServiceServer).GetMenu(m, &grpc.GenericServerStream[MenuRequest, Menu]{ServerStream: stream})
-}
-
-// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type ChatService_GetMenuServer = grpc.ServerStreamingServer[Menu]
-
-func _ChatService_PlaceOrder_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Order)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ChatServiceServer).PlaceOrder(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ChatService_PlaceOrder_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).PlaceOrder(ctx, req.(*Order))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ChatService_GetOrderStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Receipt)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ChatServiceServer).GetOrderStatus(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: ChatService_GetOrderStatus_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServiceServer).GetOrderStatus(ctx, req.(*Receipt))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 // ChatService_ServiceDesc is the grpc.ServiceDesc for ChatService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -219,21 +115,7 @@ var ChatService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "SayHello",
 			Handler:    _ChatService_SayHello_Handler,
 		},
-		{
-			MethodName: "PlaceOrder",
-			Handler:    _ChatService_PlaceOrder_Handler,
-		},
-		{
-			MethodName: "GetOrderStatus",
-			Handler:    _ChatService_GetOrderStatus_Handler,
-		},
 	},
-	Streams: []grpc.StreamDesc{
-		{
-			StreamName:    "GetMenu",
-			Handler:       _ChatService_GetMenu_Handler,
-			ServerStreams: true,
-		},
-	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "chat.proto",
 }

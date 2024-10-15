@@ -4,11 +4,7 @@ option go_package = "steve-fidika/2024-10-12/server/pb/coffeeshop";
 
 package coffeeshop;
 
-message MenuRequest {}
-
-message Menu {
-    repeated Item items = 1;
-}
+message StreamRequest {}
 
 message Item {
     string id = 1;
@@ -29,7 +25,7 @@ message OrderStatus {
 }
 
 service CoffeeShop {
-    rpc GetMenu(MenuRequest) returns (stream Menu) {}
+    rpc StreamOrders(StreamRequest) returns (stream Order) {}
 
     rpc PlaceOrder(Order) returns (Receipt) {}
 

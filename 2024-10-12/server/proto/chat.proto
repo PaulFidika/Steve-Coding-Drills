@@ -8,36 +8,6 @@ message Message {
     string body = 1;
 }
 
-message MenuRequest {}
-
-message Menu {
-    repeated Item items = 1;
-}
-
-message Order {
-    repeated Item items = 1;
-}
-
-message Receipt {
-    string id = 1;
-}
-
-message OrderStatus {
-    string orderId = 1;
-    string status = 2;
-}
-
-message Item {
-    string id = 1;
-    string name = 2;
-}
-
 service ChatService {
     rpc SayHello (Message) returns (Message) {}
-
-    rpc GetMenu(MenuRequest) returns (stream Menu) {}
-
-    rpc PlaceOrder(Order) returns (Receipt) {}
-
-    rpc GetOrderStatus(Receipt) returns (OrderStatus) {}
 }
