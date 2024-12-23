@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "my-project"
+version = "0.1.0"
+description = "A project using PyTorch and Diffusers"
+requires-python = ">=3.11"
+dependencies = [
+    "accelerate",
+    "diffusers",
+    "protobuf",
+    "sentencepiece",
+    "torchao",
+    "transformers",
+]
+
+[project.optional-dependencies]
+torch = ["torch", "torchvision", "torchaudio", "xformers", "triton"]
+
+[tool.setuptools]
+packages = ["my_project"]
+
+[tool.setuptools.package-data]
+my_project = ["py.typed"]

@@ -1,0 +1,19 @@
+{
+  "name": "surrealdb-test",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "initialize": "ts-node src/initialize.ts",
+    "run-test": "ts-node src/run-test.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "surrealdb": "^1.1.0",
+    "ws": "^8.18.0"
+  }
+}
