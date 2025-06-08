@@ -11,6 +11,6 @@ type DB struct {
 
 func NewDatabase() *DB {
 	return &DB{
-		users: []Users{,}
+		users: []Users{}
 	}
 }
