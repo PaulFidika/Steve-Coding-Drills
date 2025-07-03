@@ -71,9 +71,11 @@ func startServer(addr string) {
 // returns public URLs under https://test1.doujins.media
 func publicHandler(w http.ResponseWriter, r *http.Request) {
 	base := "https://test1.doujins.media/"
+	// add per-response nonce to prevent client/proxy caching of the objects
+	nonce := fmt.Sprintf("%d", time.Now().UnixNano())
 	urls := make([]string, 0, len(objectKeys))
 	for _, k := range objectKeys {
-		urls = append(urls, base+k)
+		urls = append(urls, base+k+"?n="+nonce)
 	}
 	respondJSON(w, imageList{URLs: urls})
 }
@@ -87,9 +89,11 @@ func publicRawHandler(w http.ResponseWriter, r *http.Request) {
 	if !strings.HasSuffix(base, "/") {
 		base += "/"
 	}
+	// cache-buster nonce (same per response to keep list size unchanged)
+	nonce := fmt.Sprintf("%d", time.Now().UnixNano())
 	urls := make([]string, 0, len(objectKeys))
 	for _, k := range objectKeys {
-		urls = append(urls, base+k)
+		urls = append(urls, base+k+"?n="+nonce)
 	}
 	respondJSON(w, imageList{URLs: urls})
 }
@@ -136,8 +140,9 @@ func runBench(serverBase string, runs int) {
 	privEndpoint := strings.TrimRight(serverBase, "/") + "/images/private"
 
 	for i := 1; i <= runs; i++ {
-		cdnDur := measure(pubEndpoint)
+		// measure raw first, then CDN
 		rawDur := measure(pubRawEndpoint)
+		cdnDur := measure(pubEndpoint)
 		privDur := measure(privEndpoint)
 		fmt.Printf("Run %d\tcdn: %v\traw: %v (Δ=%v)\tprivate: %v (Δ=%v)\n",
 			i, cdnDur, rawDur, rawDur-cdnDur, privDur, privDur-cdnDur)
