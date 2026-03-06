@@ -1,0 +1,30 @@
+{
+  "backend": "garnet-lb",
+  "base_url": "http://lb",
+  "scenario": "ryw",
+  "generated_at": "2026-03-03T05:51:03.589039211Z",
+  "config": {
+    "duration_seconds": 20,
+    "workers": 128,
+    "start_rps": 200,
+    "step_rps": 200,
+    "max_rps": 5000,
+    "keyspace": 10000,
+    "seed_keys": 10000,
+    "timeout_ms": 3000,
+    "error_threshold": 0.01,
+    "p95_threshold_ms": 250,
+    "routing_mode": "single",
+    "node_url_count": 0,
+    "shard_count": 3,
+    "replication_factor": 3
+  },
+  "ryw": {
+    "requests": 1000,
+    "concurrency": 64,
+    "success": 1000,
+    "failures": 0,
+    "violations": 0,
+    "duration_seconds": 0.339854511
+  }
+}

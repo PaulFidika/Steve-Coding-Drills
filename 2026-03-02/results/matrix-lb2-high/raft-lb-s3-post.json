@@ -1,0 +1,264 @@
+{
+  "backend": "raft-lb-s3",
+  "base_url": "http://lb",
+  "scenario": "post",
+  "generated_at": "2026-03-03T05:41:49.21654735Z",
+  "config": {
+    "duration_seconds": 3,
+    "workers": 256,
+    "start_rps": 1000,
+    "step_rps": 500,
+    "max_rps": 8000,
+    "keyspace": 10000,
+    "seed_keys": 10000,
+    "timeout_ms": 3000,
+    "error_threshold": 0.01,
+    "p95_threshold_ms": 250,
+    "routing_mode": "single",
+    "node_url_count": 0,
+    "shard_count": 3,
+    "replication_factor": 3
+  },
+  "steps": [
+    {
+      "target_rps": 1000,
+      "achieved_rps": 483.9869314192544,
+      "sent": 2675,
+      "dropped": 323,
+      "success": 2675,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 499.907807,
+      "p95_ms": 903.720182,
+      "p99_ms": 1195.848472,
+      "status_codes": {
+        "200": 2675
+      }
+    },
+    {
+      "target_rps": 1500,
+      "achieved_rps": 791.1801224651007,
+      "sent": 3339,
+      "dropped": 1160,
+      "success": 3339,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 67.147645,
+      "p95_ms": 800.8765,
+      "p99_ms": 1122.708456,
+      "status_codes": {
+        "200": 3339
+      }
+    },
+    {
+      "target_rps": 2000,
+      "achieved_rps": 1390.871374770583,
+      "sent": 5805,
+      "dropped": 194,
+      "success": 5805,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 17.339266,
+      "p95_ms": 664.356595,
+      "p99_ms": 999.663302,
+      "status_codes": {
+        "200": 5805
+      }
+    },
+    {
+      "target_rps": 2500,
+      "achieved_rps": 1872.579417825477,
+      "sent": 7499,
+      "dropped": 0,
+      "success": 7499,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 16.858453,
+      "p95_ms": 388.443326,
+      "p99_ms": 879.302254,
+      "status_codes": {
+        "200": 7499
+      }
+    },
+    {
+      "target_rps": 3000,
+      "achieved_rps": 2979.88710129299,
+      "sent": 8996,
+      "dropped": 0,
+      "success": 8996,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 16.13503,
+      "p95_ms": 21.150155,
+      "p99_ms": 24.9005,
+      "status_codes": {
+        "200": 8996
+      }
+    },
+    {
+      "target_rps": 3500,
+      "achieved_rps": 3324.13057757201,
+      "sent": 10037,
+      "dropped": 462,
+      "success": 10037,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 17.520073,
+      "p95_ms": 80.182585,
+      "p99_ms": 489.800613,
+      "status_codes": {
+        "200": 10037
+      }
+    },
+    {
+      "target_rps": 4000,
+      "achieved_rps": 3415.540351256826,
+      "sent": 10363,
+      "dropped": 1634,
+      "success": 10363,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 17.676568,
+      "p95_ms": 77.325459,
+      "p99_ms": 695.61185,
+      "status_codes": {
+        "200": 10363
+      }
+    },
+    {
+      "target_rps": 4500,
+      "achieved_rps": 3730.8599272197594,
+      "sent": 12312,
+      "dropped": 1187,
+      "success": 12312,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 25.035253,
+      "p95_ms": 132.335075,
+      "p99_ms": 607.932621,
+      "status_codes": {
+        "200": 12312
+      }
+    },
+    {
+      "target_rps": 5000,
+      "achieved_rps": 4964.636751659383,
+      "sent": 14990,
+      "dropped": 0,
+      "success": 14990,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 16.372342,
+      "p95_ms": 24.759054,
+      "p99_ms": 50.437994,
+      "status_codes": {
+        "200": 14990
+      }
+    },
+    {
+      "target_rps": 5500,
+      "achieved_rps": 4555.782583549835,
+      "sent": 14185,
+      "dropped": 2313,
+      "success": 14185,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 41.108935,
+      "p95_ms": 114.731666,
+      "p99_ms": 362.118065,
+      "status_codes": {
+        "200": 14185
+      }
+    },
+    {
+      "target_rps": 6000,
+      "achieved_rps": 5764.557755757914,
+      "sent": 17763,
+      "dropped": 233,
+      "success": 17763,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 25.988179,
+      "p95_ms": 86.790989,
+      "p99_ms": 115.128319,
+      "status_codes": {
+        "200": 17763
+      }
+    },
+    {
+      "target_rps": 6500,
+      "achieved_rps": 5256.053165711138,
+      "sent": 16907,
+      "dropped": 2588,
+      "success": 16907,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 41.01211,
+      "p95_ms": 83.252301,
+      "p99_ms": 286.952638,
+      "status_codes": {
+        "200": 16907
+      }
+    },
+    {
+      "target_rps": 7000,
+      "achieved_rps": 1450.5954822310223,
+      "sent": 7108,
+      "dropped": 13889,
+      "success": 7108,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 60.337842,
+      "p95_ms": 702.027319,
+      "p99_ms": 903.578005,
+      "status_codes": {
+        "200": 7108
+      }
+    },
+    {
+      "target_rps": 7500,
+      "achieved_rps": 464.9956996267707,
+      "sent": 2325,
+      "dropped": 20169,
+      "success": 2325,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 534.000495,
+      "p95_ms": 960.557551,
+      "p99_ms": 1250.761647,
+      "status_codes": {
+        "200": 2325
+      }
+    },
+    {
+      "target_rps": 8000,
+      "achieved_rps": 484.74149980815196,
+      "sent": 2764,
+      "dropped": 21235,
+      "success": 2764,
+      "failures": 0,
+      "error_rate": 0,
+      "p50_ms": 503.663595,
+      "p95_ms": 902.22099,
+      "p99_ms": 1197.273674,
+      "status_codes": {
+        "200": 2764
+      }
+    }
+  ],
+  "best": {
+    "target_rps": 6500,
+    "achieved_rps": 5256.053165711138,
+    "sent": 16907,
+    "dropped": 2588,
+    "success": 16907,
+    "failures": 0,
+    "error_rate": 0,
+    "p50_ms": 41.01211,
+    "p95_ms": 83.252301,
+    "p99_ms": 286.952638,
+    "status_codes": {
+      "200": 16907
+    }
+  }
+}
